@@ -120,7 +120,7 @@ public class DruidConfiguration {
     @SuppressWarnings("rawtypes")
     @Bean
     public FilterRegistrationBean statFilter(){
-        FilterRegistrationBean filterRegistrationBean=new FilterRegistrationBean(new WebStatFilter());
+        FilterRegistrationBean filterRegistrationBean= new FilterRegistrationBean(new WebStatFilter());
         filterRegistrationBean.addUrlPatterns("/*");
         //添加过滤规则
         filterRegistrationBean.addInitParameter("exclusions","*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*");
