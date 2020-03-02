@@ -199,7 +199,16 @@
 			});
 
 			table.on('tool(currentTableFilter)', function(obj) {
-
+				if(obj.event == 'check-flow'){
+					layer.open({
+						  type: 2,
+						  title: false,
+						  shadeClose: true,
+						  shade: 0.8,
+						  area: ['1000px', '500px'],
+						  content: ctx+'myActiviti/traceProcess/'+obj.data.processInstanceId //iframe的url
+						}); 
+				}
 			});
 
 			table.on('toolbar(currentTableFilter)', function(obj) {
