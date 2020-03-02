@@ -40,7 +40,7 @@ public class LeaveServiceImpl implements LeaveService {
 		if(null == id || StringUtils.isBlank(id)) {
 			id = BaseKit.uuid();
 		}
-		TLeave record = new TLeave().setId(id).setType(type).setStartTime(startTime).setEndTime(endTime).setRemark(remark);
+		TLeave record = new TLeave().setId(id).setType(type).setStartTime(startTime).setEndTime(endTime).setRemark(remark).setUserid(userid).setStatus("review");
 		boolean success = leaveMapper.insertSelective(record );
 		if (!success) {
 			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();

@@ -136,11 +136,11 @@
       process_instance_id = #{processInstanceId,jdbcType=VARCHAR},
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <select id="listUserLeaves" resultType="org.freeatalk.freeone.springboot.activiti6.entity.TLeave">
+  <select id="listUserLeaves" resultMap="BaseResultMap">
 	select 
 		<include refid="Base_Column_List"/>	
 	from t_leave
 	where 
-		id = #{userid,jdbcType=VARCHAR}	
+		userid = #{userid,jdbcType=VARCHAR}	
   </select>
 </mapper>
