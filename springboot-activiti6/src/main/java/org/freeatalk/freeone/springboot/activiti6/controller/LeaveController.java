@@ -38,8 +38,8 @@ public class LeaveController{
 	
 	@RequestMapping("pagelistMyLeaves")
 	@ResponseBody
-	public ResultBack<Object> pagelistMyLeaves(Integer pageNumber, Integer pageSize,HttpSession session) {
-		PageHelper.startPage(pageNumber, pageSize);
+	public ResultBack<Object> pagelistMyLeaves(Integer pageNum, Integer pageSize,HttpSession session) {
+		PageHelper.startPage(pageNum, pageSize);
 		TUser user = (TUser) session.getAttribute("user");
 		List<TLeave> list = leaveService.listMyLeaves(user.getId(), null);
 		return new ResultBack<>(new PageInfo<>(list));

@@ -11,7 +11,7 @@ public class SpringbootActiviti6Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SpringbootActiviti6Application.class, args);
-		System.out.println("3132316313");
+		System.out.println("==============================DONE============================================");
 	}
 
 }

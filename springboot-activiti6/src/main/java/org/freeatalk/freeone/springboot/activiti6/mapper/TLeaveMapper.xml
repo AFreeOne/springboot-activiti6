@@ -139,8 +139,8 @@
   <select id="listUserLeaves" resultType="org.freeatalk.freeone.springboot.activiti6.entity.TLeave">
 	select 
 		<include refid="Base_Column_List"/>	
-	from t_user
+	from t_leave
 	where 
-		userid = #{userid,jdbcType=VARCHAR}	
+		id = #{userid,jdbcType=VARCHAR}	
   </select>
 </mapper>

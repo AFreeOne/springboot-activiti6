@@ -68,7 +68,8 @@
 <script th:src="@{/static/lib/layui-v2.5.5/layui.js}" charset="utf-8"></script>
 <script th:src="@{/static/lib/jq-module/jquery.particleground.min.js}" charset="utf-8"></script>
 <script>
-	var ctx = '[[@{/}]]'
+	var ctx = '[[@{/}]]';
+	localStorage.setItem("ctx",ctx);
     layui.use(['form'], function () {
         var form = layui.form,
             layer = layui.layer;
