@@ -32,81 +32,84 @@ public class LeaveServiceImpl implements LeaveService {
 
 	@Autowired
 	private TLeaveMapper leaveMapper;
-	
+
 	@Autowired
 	private IdentityService identityservice;
-	
+
 	@Autowired
 	private RuntimeService runtimeservice;
-	
+
 	@Autowired
 	private TaskService taskservice;
 	@Autowired
 	private HistoryService historyService;
 	@Autowired
 	private RepositoryService repositoryService;
-	
-	
-	@Transactional(rollbackFor = {Exception.class})
+
+	@Transactional(rollbackFor = { Exception.class })
 	@Override
-	public boolean addLeave(String id, String type, Date startTime, Date endTime, String remark,String userid) {
-		
-		if(null == id || StringUtils.isBlank(id)) {
+	public boolean addLeave(String id, String type, Date startTime, Date endTime, String remark, String userid) {
+
+		if (null == id || StringUtils.isBlank(id)) {
 			id = BaseKit.uuid();
 		}
-		TLeave record = new TLeave().setId(id).setType(type).setStartTime(startTime).setEndTime(endTime).setRemark(remark).setUserid(userid).setStatus("review");
-		boolean success = leaveMapper.insertSelective(record );
+		TLeave record = new TLeave().setId(id).setType(type).setStartTime(startTime).setEndTime(endTime)
+				.setRemark(remark).setUserid(userid).setStatus("review");
+		boolean success = leaveMapper.insertSelective(record);
 		if (!success) {
 			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 		}
-		/*身份认证*/
+		/* 身份认证 */
 		identityservice.setAuthenticatedUserId(userid);
-		/*会从系统中获取id是leave的流程，注意，不是名字前缀是leave的流程，流程的id通过点击流程的空白处，在IDE，如eclipse的properties中显示并设置*/
+		/*
+		 * 会从系统中获取id是leave的流程，注意，不是名字前缀是leave的流程，流程的id通过点击流程的空白处，在IDE，
+		 * 如eclipse的properties中显示并设置
+		 */
 		ProcessInstance processInstance = runtimeservice.startProcessInstanceByKey("leave", id);
-		/*获取流程的主键，保存到假条的相关表中*/
+		/* 获取流程的主键，保存到假条的相关表中 */
 		String processInstanceId = processInstance.getId();
 		record.setProcessInstanceId(processInstanceId);
 		return leaveMapper.updateByPrimaryKeySelective(record);
 	}
 
-	
 	@Override
 	public List<TLeave> listMyLeaves(String userid, Map<String, Object> variables) {
 		return leaveMapper.listUserLeaves(userid, variables);
 	}
+
 	@Override
 	public InputStream getDiagram(String processInstanceId) {
- 	    //获得流程实例
- 	    ProcessInstance processInstance = runtimeservice.createProcessInstanceQuery()
- 	            .processInstanceId(processInstanceId).singleResult();
- 	    String processDefinitionId = StringUtils.EMPTY;
- 	    if (processInstance == null) {
- 	        //查询已经结束的流程实例
- 	        HistoricProcessInstance processInstanceHistory =
- 	                historyService.createHistoricProcessInstanceQuery()
- 	                        .processInstanceId(processInstanceId).singleResult();
- 	        if (processInstanceHistory == null)
- 	            return null;
- 	        else
- 	            processDefinitionId = processInstanceHistory.getProcessDefinitionId();
- 	    } else {
- 	        processDefinitionId = processInstance.getProcessDefinitionId();
- 	    }
+		// 获得流程实例
+		ProcessInstance processInstance = runtimeservice.createProcessInstanceQuery()
+				.processInstanceId(processInstanceId).singleResult();
+		String processDefinitionId = StringUtils.EMPTY;
+		if (processInstance == null) {
+			// 查询已经结束的流程实例
+			HistoricProcessInstance processInstanceHistory = historyService.createHistoricProcessInstanceQuery()
+					.processInstanceId(processInstanceId).singleResult();
+			if (processInstanceHistory == null) {
+				return null;
+			} else {
+				processDefinitionId = processInstanceHistory.getProcessDefinitionId();
+			}
+		} else {
+			processDefinitionId = processInstance.getProcessDefinitionId();
+		}
 
- 	    //使用宋体
- 	    String fontName = "宋体";
- 	    //获取BPMN模型对象
- 	    BpmnModel model = repositoryService.getBpmnModel(processDefinitionId);
- 	    //获取流程实例当前的节点，需要高亮显示
- 	    List<String> currentActs = Collections.EMPTY_LIST;
- 	    if (processInstance != null)
- 	        currentActs = runtimeservice.getActiveActivityIds(processInstance.getId());
+		// 使用宋体
+		String fontName = "宋体";
+		String activityFontName = "方正粗黑宋简体";		//流程默认字体
+		String labelFontName = "黑体";			//默认标签字体
+		String annotationFontName = "仿宋";		// 默认注释字体
+		// 获取BPMN模型对象
+		BpmnModel model = repositoryService.getBpmnModel(processDefinitionId);
+		// 获取流程实例当前的节点，需要高亮显示
+		List<String> currentActs = Collections.EMPTY_LIST;
+		if (processInstance != null) {
+			currentActs = runtimeservice.getActiveActivityIds(processInstance.getId());
+		}
+		ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
 
- 	   ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
- 	    
- 	    return processEngine.getProcessEngineConfiguration()
- 	            .getProcessDiagramGenerator()
- 	            .generateDiagram(model, "png", currentActs, new ArrayList<String>(),
- 	                    fontName, fontName, fontName, null, 1.0);
- 	}
+		return processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(model, "png", currentActs, new ArrayList<String>(), activityFontName, labelFontName, annotationFontName, null, 1.0);
+	}
 }
