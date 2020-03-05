@@ -139,6 +139,7 @@
 					,templet: function(row){
 						var html = '';
 						html += '<button class="layui-btn layui-btn-xs layui-btn-normal" lay-event="check-flow">查看当前流程</>';
+						html += '<button class="layui-btn layui-btn-xs layui-btn-normal" lay-event="flow-history">查看流程历史</>';
 						return html;
 					}
 				} ] ],
@@ -207,7 +208,27 @@
 						  shade: 0.8,
 						  area: ['1000px', '500px'],
 						  content: ctx+'myActiviti/traceProcess/'+obj.data.processInstanceId //iframe的url
-						}); 
+						});
+				} else if(obj.event == 'flow-history'){
+					
+					$.get(ctx + 'myActiviti/processinfo/' + obj.data.processInstanceId,function(data){
+						var tableHTML = '<table class="layui-table">';
+						tableHTML += '<tr><th>活动名称</th><th>活动类型</th><th>办理人</th><th>活动开始时间</th><th>活动结束时间</th></tr>';
+						for(var item of data.data){
+							tableHTML += '<tr><td>'+item.activityName+'</td><td>'+item.activityType+'</td><td>'+item.assignee+'</td><td>'+item.startTime+'</td><td>'+item.endTime+'</td></tr>';
+						}
+						tableHTML += '</table>';
+						layer.open({
+							  type: 1,
+							  title: false,
+							  shadeClose: true,
+							  shade: 0.8,
+							  area: ['1000px', '500px'],
+							  content: tableHTML
+							});
+						
+					})
+					
 				}
 			});
 

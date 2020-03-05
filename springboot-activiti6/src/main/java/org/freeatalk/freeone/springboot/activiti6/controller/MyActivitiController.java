@@ -22,6 +22,7 @@ import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.image.impl.DefaultProcessDiagramGenerator;
 import org.freeatalk.freeone.springboot.activiti6.service.LeaveService;
+import org.freeatalk.freeone.springboot.activiti6.utils.ResultBack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -83,5 +86,11 @@ public class MyActivitiController {
 	        }
 	}
 	
-	 
+	@RequestMapping(value = "/processinfo/{instanceid}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResultBack<Object> processinfo(@PathVariable("instanceid") String instanceid) {
+		 List<HistoricActivityInstance> list = histiryService.createHistoricActivityInstanceQuery()
+				.processInstanceId(instanceid).orderByHistoricActivityInstanceStartTime().asc().list();
+		return new ResultBack<>(list);
+	}
 }
