@@ -15,5 +15,24 @@ public interface LeaveService {
 
 	InputStream getDiagram(String processInstanceId);
 
+    /**  <p></p>   
+     * @param userid
+     * @param firstrow
+     * @param rowcount
+     * @return
+     * @version: v1.0.0
+     * @author: lqq
+     * @date: 2020年3月18日 下午1:30:44 
+     */
+    List<TLeave> listLeavesWithCourseTeacher();
+
+    /**  <p></p>   
+     * @return
+     * @version: v1.0.0
+     * @author: lqq
+     * @date: 2020年3月18日 下午5:05:30 
+     */
+    List<TLeave> pageListLeavesWithMainTeacher();
+
 
 }

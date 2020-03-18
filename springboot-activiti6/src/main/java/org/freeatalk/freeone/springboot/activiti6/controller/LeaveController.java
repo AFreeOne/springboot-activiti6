@@ -1,10 +1,17 @@
 package org.freeatalk.freeone.springboot.activiti6.controller;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.activiti.engine.HistoryService;
+import org.activiti.engine.IdentityService;
+import org.activiti.engine.RepositoryService;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
 import org.freeatalk.freeone.springboot.activiti6.entity.TLeave;
 import org.freeatalk.freeone.springboot.activiti6.entity.TUser;
 import org.freeatalk.freeone.springboot.activiti6.service.LeaveService;
@@ -13,6 +20,7 @@ import org.freeatalk.freeone.springboot.activiti6.utils.ResultBack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,6 +35,21 @@ public class LeaveController{
 
 	@Autowired
 	private LeaveService leaveService;
+	
+
+    @Autowired
+    private IdentityService identityservice;
+
+    @Autowired
+    private RuntimeService runtimeservice;
+
+    @Autowired
+    private TaskService taskService;
+    @Autowired
+    private HistoryService historyService;
+    @Autowired
+    private RepositoryService repositoryService;
+	
 	
 	@RequestMapping("addLeave")
 	@ResponseBody
@@ -44,4 +67,41 @@ public class LeaveController{
 		List<TLeave> list = leaveService.listMyLeaves(user.getId(), null);
 		return new ResultBack<>(new PageInfo<>(list));
 	}
+	
+	@RequestMapping("pageListLeavesWithCourseTeacher")
+    @ResponseBody
+    public ResultBack<Object> pageListLeavesWithCourseTeacher(Integer pageNum, Integer pageSize,HttpSession session) {
+	    PageHelper.startPage(pageNum, pageSize);
+        TUser user = (TUser) session.getAttribute("user");
+        List<TLeave> list = leaveService.listLeavesWithCourseTeacher();
+        return new ResultBack<>(new PageInfo<>(list));
+    }
+	
+
+    @RequestMapping(value = "/complete/{taskid}")
+    @ResponseBody
+    public ResultBack<Object> deptcomplete( @PathVariable("taskid") String taskid, String agree,HttpSession session) {
+        String userid = (String) session.getAttribute("username");
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("agree", agree);
+        taskService.claim(taskid, userid);
+        taskService.complete(taskid, variables);
+        return new ResultBack<>("处理完成");
+    }
+    
+    @RequestMapping(value = "/finish/{taskid}")
+    @ResponseBody
+    public ResultBack<Object> finish( @PathVariable("taskid") String taskid,HttpSession session) {
+        taskService.complete(taskid);
+        return new ResultBack<>("处理完成");
+    }
+    
+    @RequestMapping("pageListLeavesWithMainTeacher")
+    @ResponseBody
+    public ResultBack<Object> pageListLeavesWithMainTeacher(Integer pageNum, Integer pageSize,HttpSession session) {
+        PageHelper.startPage(pageNum, pageSize);
+        TUser user = (TUser) session.getAttribute("user");
+        List<TLeave> list = leaveService.pageListLeavesWithMainTeacher();
+        return new ResultBack<>(new PageInfo<>(list));
+    }	
 }

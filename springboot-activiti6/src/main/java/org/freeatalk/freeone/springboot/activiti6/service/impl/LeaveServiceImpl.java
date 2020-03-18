@@ -17,6 +17,7 @@ import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Task;
 import org.apache.commons.lang3.StringUtils;
 import org.freeatalk.freeone.springboot.activiti6.dao.TLeaveMapper;
 import org.freeatalk.freeone.springboot.activiti6.entity.TLeave;
@@ -112,4 +113,43 @@ public class LeaveServiceImpl implements LeaveService {
 
 		return processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(model, "png", currentActs, new ArrayList<String>(), activityFontName, labelFontName, annotationFontName, null, 1.0);
 	}
+	
+	@Override
+	public List<TLeave> listLeavesWithCourseTeacher() {
+        List<TLeave> results=new ArrayList<>();
+        List<Task> tasks=taskservice.createTaskQuery().taskCandidateGroup("任课老师").list();
+        for(Task task:tasks){
+            String instanceid=task.getProcessInstanceId();
+            ProcessInstance ins=runtimeservice.createProcessInstanceQuery().processInstanceId(instanceid).singleResult();
+            String businesskey=ins.getBusinessKey();
+            TLeave leave = leaveMapper.selectByPrimaryKey(businesskey);
+            leave.setProcessDefinitionId(task.getProcessDefinitionId());
+            leave.setTaskcreatetime(task.getCreateTime());
+            leave.setTaskId(task.getId());
+            leave.setTaskName(task.getName());
+            results.add(leave);
+        }
+        return results;
+    }
+
+    @Override
+    public List<TLeave> pageListLeavesWithMainTeacher() {
+        List<TLeave> results=new ArrayList<>();
+        List<Task> tasks=taskservice.createTaskQuery().taskCandidateGroup("班主任").list();
+        for(Task task:tasks){
+            String instanceid=task.getProcessInstanceId();
+            ProcessInstance ins=runtimeservice.createProcessInstanceQuery().processInstanceId(instanceid).singleResult();
+            String businesskey=ins.getBusinessKey();
+            TLeave leave = leaveMapper.selectByPrimaryKey(businesskey);
+            leave.setProcessDefinitionId(task.getProcessDefinitionId());
+            leave.setTaskcreatetime(task.getCreateTime());
+            leave.setTaskId(task.getId());
+            leave.setTaskName(task.getName());
+            results.add(leave);
+        }
+        return results;
+    }
+	
+	
+	
 }

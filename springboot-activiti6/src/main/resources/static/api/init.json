@@ -67,6 +67,17 @@
           "icon": "fa fa-file-text",
           "target": "_self"
         },
+         {
+          "title": "任课老师批假",
+          "href": "page/course-teacher-leave-table.html",
+          "icon": "fa fa-file-text",
+          "target": "_self"
+        },{
+          "title": "班主任批假",
+          "href": "page/main-teacher-leave-table.html",
+          "icon": "fa fa-file-text",
+          "target": "_self"
+        },
         {
           "title": "表单示例",
           "href": "",
