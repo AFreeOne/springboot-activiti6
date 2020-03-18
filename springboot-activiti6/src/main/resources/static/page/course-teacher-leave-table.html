@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>layui</title>
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<link rel="stylesheet" href="../lib/layui-v2.5.5/css/layui.css" media="all">
+<link rel="stylesheet" href="../css/public.css" media="all">
+</head>
+<body>
+	<div class="layuimini-container">
+		<div class="layuimini-main">
+
+			<fieldset class="table-search-fieldset">
+				<legend>搜索信息</legend>
+				<div style="margin: 10px 10px 10px 10px">
+					<form class="layui-form layui-form-pane" action="">
+						<div class="layui-form-item">
+							<div class="layui-inline">
+								<label class="layui-form-label">用户姓名</label>
+								<div class="layui-input-inline">
+									<input type="text" name="username" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<!--  <div class="layui-inline">
+                            <label class="layui-form-label">用户性别</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="sex" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">用户城市</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="city" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">用户职业</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="classify" autocomplete="off" class="layui-input">
+                            </div>
+                        </div> -->
+							<div class="layui-inline">
+								<button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
+									<i class="layui-icon"></i> 搜 索
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</fieldset>
+
+			<script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-sm data-add-btn"> 添加用户 </button>
+                <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn"> 删除用户 </button>
+            </div>
+        </script>
+
+			<table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+
+			<script type="text/html" id="currentTableBar">
+            <a class="layui-btn layui-btn-xs data-count-edit" lay-event="add-leave"><i class="layui-icon layui-icon-add-1"></i></a>
+        </script>
+
+		</div>
+	</div>
+
+	<template id="add-form-html">
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">请假类型</label>
+		<div class="layui-input-block">
+			<select name="type" class="layui-select">
+				<option value="事假">事假</option>
+				<option value="病假">病假</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">请假时间</label>
+		<div class="layui-input-block">
+			<input type="text" name="leaveTime" autocomplete="off" class="layui-input">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">备注</label>
+		<div class="layui-input-block">
+			<textarea name="remark" autocomplete="off" class="layui-textarea"></textarea>
+		</div>
+	</div>
+
+	</template>
+
+	<script src="../lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+	<script>
+		layui.use([ 'form', 'table', 'laydate' ], function() {
+			var $ = layui.jquery, form = layui.form, table = layui.table, laydate = layui.laydate;
+			layuimini = layui.layuimini;
+
+			var ctx = localStorage.getItem("ctx")
+			var leaveTable = table.render({
+				elem : '#currentTableId',
+				url : ctx + 'leave/pageListLeavesWithCourseTeacher',
+				toolbar : '#currentTableBar',
+				request : {
+					pageName : 'pageNum' //页码的参数名称，默认：page
+					,
+					limitName : 'pageSize' //每页数据量的参数名，默认：limit
+				},
+
+				parseData : function(res) {
+					return {
+						"code" : 0, //解析接口状态
+						"msg" : res.message, //解析提示文本
+						"count" : res.data.total, //解析数据长度
+						"data" : res.data.list, //解析数据列表
+					};
+				},
+
+				cols : [ [ {
+					field : 'type',
+					width : 180,
+					title : '请假类型'
+				}, {
+					field : 'taskName',
+					width : 180,
+					title : '任务名字'
+				}, {
+					field : 'taskcreatetime',
+					width : 180,
+					title : '任务创建时间'
+				}, {
+					title : '操作'
+					,templet: function(row){
+						var html = '';
+						html += '<button class="layui-btn layui-btn-xs layui-btn-normal" lay-event="check-flow">查看当前流程</>';
+						html += '<button class="layui-btn layui-btn-xs layui-btn-normal" lay-event="flow-history">查看流程历史</>';
+						html += '<button class="layui-btn layui-btn-xs layui-btn-normal" lay-event="do-flow">处理</>';
+						return html;
+					}
+				} ] ],
+				limits : [ 10, 15, 20, 25, 50, 100 ],
+				limit : 15,
+				page : true
+			});
+			
+
+			// 监听搜索操作
+			form.on('submit(data-search-btn)', function(data) {
+				var result = JSON.stringify(data.field);
+				layer.alert(result, {
+					title : '最终的搜索信息'
+				});
+
+				//执行搜索重载
+				table.reload('currentTableId', {
+					page : {
+						curr : 1
+					},
+					where : {
+						searchParams : result
+					}
+				}, 'data');
+
+				return false;
+			});
+
+			// 监听添加操作
+			$(".data-add-btn").on("click", function() {
+
+				var index = layer.open({
+					title : '添加用户',
+					type : 2,
+					shade : 0.2,
+					maxmin : true,
+					shadeClose : true,
+					area : [ '100%', '100%' ],
+					content : '/page/table/add.html',
+				});
+				$(window).on("resize", function() {
+					layer.full(index);
+				});
+
+				return false;
+			});
+
+			// 监听删除操作
+			$(".data-delete-btn").on("click", function() {
+				var checkStatus = table.checkStatus('currentTableId'), data = checkStatus.data;
+				layer.alert(JSON.stringify(data));
+			});
+
+			//监听表格复选框选择
+			table.on('checkbox(currentTableFilter)', function(obj) {
+				console.log(obj)
+			});
+
+			table.on('tool(currentTableFilter)', function(obj) {
+				if(obj.event == 'check-flow'){
+					layer.open({
+						  type: 2,
+						  title: false,
+						  shadeClose: true,
+						  shade: 0.8,
+						  area: ['1000px', '500px'],
+						  content: ctx+'myActiviti/traceProcess/'+obj.data.processInstanceId //iframe的url
+						});
+				} else if(obj.event == 'flow-history'){
+					
+					$.get(ctx + 'myActiviti/processinfo/' + obj.data.processInstanceId,function(data){
+						var tableHTML = '<table class="layui-table">';
+						tableHTML += '<tr><th>活动名称</th><th>活动类型</th><th>办理人</th><th>活动开始时间</th><th>活动结束时间</th></tr>';
+						for(var item of data.data){
+							tableHTML += '<tr><td>'+item.activityName+'</td><td>'+item.activityType+'</td><td>'+item.assignee+'</td><td>'+item.startTime+'</td><td>'+item.endTime+'</td></tr>';
+						}
+						tableHTML += '</table>';
+						layer.open({
+							  type: 1,
+							  title: false,
+							  shadeClose: true,
+							  shade: 0.8,
+							  area: ['1000px', '500px'],
+							  content: tableHTML
+							});
+						
+					})
+					
+				}else if(obj.event == 'do-flow'){
+					debugger
+					layer.confirm('批假处理', {
+						  btn: ['同意','不同意'] //按钮
+						}, function(){
+							$.post(ctx+'leave/complete/'+obj.data.taskId, {agree: 'true'}, function(data, textStatus, req) {
+								parent.layer.msg(data.msg);
+								if(data.success){
+									location.reload()
+								}
+							})
+						}, function(){
+							$.post(ctx+'leave/complete/'+obj.data.taskId, {agree: 'true'}, function(data, textStatus, req) {
+                                parent.layer.msg(data.message);
+                                if(data.success){
+                                    location.reload()
+                                }
+                            })
+						});
+					
+				}
+			});
+
+			table.on('toolbar(currentTableFilter)', function(obj) {
+				if (obj.event == 'add-leave') {
+					var html = $("#add-form-html").html();
+					var formHTML = '<form id="add-from" class="layui-form" style="width:90%;margin-top:50px;" onsubmit="return false">' + html + '</form>';
+					layer.open({
+						type : 1,
+						area : [ '60%', '400px' ], //宽高
+						content : formHTML,
+						shadeClose : true,
+						success : function(layero, index) {
+							var addForm = $("#add-from");
+							laydate.render({
+								elem : addForm.find('input[name=leaveTime]')[0],
+								range : true,
+								type : 'datetime'
+							});
+							layui.form.render();
+						},
+						btn : [ '提交', '取消' ],
+						btnAlign : 'c',
+						btn1 : function(index, layero) {
+							var addForm = $("#add-from");
+							var leaveTime = addForm.find('input[name=leaveTime]').val();
+							if (leaveTime == '') {
+								layer.msg("请选择请假的时间");
+								return;
+							}
+
+							var formData = {
+								type : addForm.find('select[name=type]').val(),
+								remark : addForm.find('textarea[name=remark]').val(),
+								startTime : leaveTime.split(' - ')[0],
+								endTime : leaveTime.split(' - ')[1]
+							}
+							$.post(ctx + 'leave/addLeave', formData, function(data) {
+								layer.closeAll()
+								layer.msg(data.message);
+								if (data.success) {
+									leaveTable.reload();
+								}
+							})
+						}
+					});
+				}
+			});
+
+		});
+	</script>
+	<script>
+		
+	</script>
+
+</body>
+</html>
