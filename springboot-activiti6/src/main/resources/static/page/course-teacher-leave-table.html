@@ -236,7 +236,7 @@
 						  btn: ['同意','不同意'] //按钮
 						}, function(){
 							$.post(ctx+'leave/complete/'+obj.data.taskId, {agree: 'true'}, function(data, textStatus, req) {
-								parent.layer.msg(data.msg);
+								parent.layer.msg(data.message);
 								if(data.success){
 									location.reload()
 								}

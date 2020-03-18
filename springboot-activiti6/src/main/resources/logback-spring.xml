@@ -169,7 +169,7 @@
         不能设置为INHERITED或者同义词NULL。默认是DEBUG
         可以包含零个或多个元素，标识这个appender将会添加到这个logger。
     -->
-     <logger name="org.activiti" level="debug"></logger>
+<!--      <logger name="org.activiti" level="debug"></logger> -->
      <logger name="org.freeatalk.freeone.springboot.activiti6.aop" level="info"/>
      <logger name="org.freeatalk.freeone.springboot.activiti6.dao" level="debug"/>
     <!--开发环境:打印控制台-->

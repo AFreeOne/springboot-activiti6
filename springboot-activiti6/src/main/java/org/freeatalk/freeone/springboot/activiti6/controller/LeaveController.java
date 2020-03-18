@@ -9,9 +9,12 @@ import javax.servlet.http.HttpSession;
 
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.IdentityService;
+import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.repository.Deployment;
+import org.activiti.engine.repository.DeploymentBuilder;
 import org.freeatalk.freeone.springboot.activiti6.entity.TLeave;
 import org.freeatalk.freeone.springboot.activiti6.entity.TUser;
 import org.freeatalk.freeone.springboot.activiti6.service.LeaveService;
@@ -92,7 +95,9 @@ public class LeaveController{
     @RequestMapping(value = "/finish/{taskid}")
     @ResponseBody
     public ResultBack<Object> finish( @PathVariable("taskid") String taskid,HttpSession session) {
-        taskService.complete(taskid);
+    	Map<String, Object> variables = new HashMap<>();
+        variables.put("know", "true");
+        taskService.complete(taskid, variables);
         return new ResultBack<>("处理完成");
     }
     
@@ -104,4 +109,18 @@ public class LeaveController{
         List<TLeave> list = leaveService.pageListLeavesWithMainTeacher();
         return new ResultBack<>(new PageInfo<>(list));
     }	
+
+	@RequestMapping("rede")
+	@ResponseBody
+	public ResultBack<Deployment> rede() {
+
+		RepositoryService repositoryService = ProcessEngines.getDefaultProcessEngine().getRepositoryService();
+		DeploymentBuilder deploymentBuilder = repositoryService.createDeployment();
+		// 设置部署名称并将两个流程定义文件添加到部署构建器中
+		deploymentBuilder.name("测试部署资源").addClasspathResource("processes/leave.bpmn");
+
+		// 由部署构建器生成一个部署对象，即将两个定义文件部署到数据库中
+		Deployment deploy = deploymentBuilder.deploy();
+		return new ResultBack<>(deploy);
+	}
 }
