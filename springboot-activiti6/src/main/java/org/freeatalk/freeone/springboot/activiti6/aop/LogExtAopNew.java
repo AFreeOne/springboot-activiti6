@@ -48,8 +48,16 @@ public class LogExtAopNew {
     @Pointcut(value = "@annotation(org.springframework.web.bind.annotation.RequestMapping)")
     public void cutLogService() {
     }
+    
+    @Pointcut(value = "@annotation(org.springframework.web.bind.annotation.GetMapping)")
+    public void cutLogGetService() {
+    }
+    
+    @Pointcut(value = "@annotation(org.springframework.web.bind.annotation.PostMapping)")
+    public void cutLogPostService() {
+    }
 
-    @Around("cutLogService()")
+    @Around("cutLogService() || cutLogGetService() || cutLogPostService()")
     public Object recordSysLog(ProceedingJoinPoint point) throws Throwable {
         boolean logOut = true;
 		if (logOut ) { // 开启日志
